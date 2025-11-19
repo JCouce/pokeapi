@@ -13,6 +13,42 @@ import {
 
 const BASE_URL = "https://pokeapi.co/api/v2";
 const POKEMON_LIMIT = 1025; // Total de Pokémon hasta Gen 9
+const FETCH_TIMEOUT = 10000; // 10 segundos timeout
+const MAX_RETRIES = 2; // Máximo 2 reintentos
+
+/**
+ * Wrapper para fetch con timeout y reintentos
+ * Previene que peticiones lentas o fallidas bloqueen la aplicación
+ */
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeout: number = FETCH_TIMEOUT,
+  retries: number = MAX_RETRIES
+): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      // Si es el último intento, lanzar el error
+      if (attempt === retries) {
+        throw error;
+      }
+      // Esperar un poco antes de reintentar (backoff exponencial)
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  throw new Error("Max retries exceeded");
+}
 
 /**
  * Obtiene todos los Pokémon básicos (sin detalles)
@@ -33,12 +69,13 @@ export async function getAllPokemonBasic() {
 
 /**
  * Obtiene detalles de un Pokémon por ID o nombre
+ * Incluye timeout y reintentos automáticos
  */
 export async function getPokemonDetails(
   idOrName: string | number
 ): Promise<Pokemon> {
   try {
-    const response = await fetch(`${BASE_URL}/pokemon/${idOrName}`, {
+    const response = await fetchWithTimeout(`${BASE_URL}/pokemon/${idOrName}`, {
       next: { revalidate: 86400 },
     });
 
@@ -57,20 +94,30 @@ export async function getPokemonDetails(
 
 /**
  * Obtiene información de especie de Pokémon (incluye generación)
+ * Incluye timeout y reintentos automáticos
  */
 export async function getPokemonSpecies(
   idOrName: string | number
 ): Promise<PokemonSpecies> {
-  const response = await fetch(`${BASE_URL}/pokemon-species/${idOrName}`, {
-    next: { revalidate: 86400 },
-  });
+  try {
+    const response = await fetchWithTimeout(
+      `${BASE_URL}/pokemon-species/${idOrName}`,
+      {
+        next: { revalidate: 86400 },
+      }
+    );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch pokemon species: ${idOrName}`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch pokemon species: ${idOrName} (Status: ${response.status})`
+      );
+    }
+
+    const data = await response.json();
+    return PokemonSpeciesSchema.parse(data);
+  } catch (error) {
+    throw error;
   }
-
-  const data = await response.json();
-  return PokemonSpeciesSchema.parse(data);
 }
 
 /**
@@ -163,30 +210,37 @@ const romanNumerals: Record<number, string> = {
 
 /**
  * Enriquece un Pokémon con información de especie/generación
+ * Devuelve null si no se puede obtener la información (manejo de errores gracefully)
  */
 export async function enrichPokemonWithGeneration(
   pokemon: Pokemon
-): Promise<EnrichedPokemon> {
-  const speciesId = extractIdFromUrl(pokemon.species.url);
-  const species = await getPokemonSpecies(speciesId);
+): Promise<EnrichedPokemon | null> {
+  try {
+    const speciesId = extractIdFromUrl(pokemon.species.url);
+    const species = await getPokemonSpecies(speciesId);
 
-  const generationId = extractIdFromUrl(species.generation.url);
+    const generationId = extractIdFromUrl(species.generation.url);
 
-  return {
-    id: pokemon.id,
-    name: pokemon.name,
-    height: pokemon.height,
-    weight: pokemon.weight,
-    types: pokemon.types.map((t) => ({
-      slot: t.slot,
-      name: t.type.name,
-    })),
-    sprite:
-      pokemon.sprites.other?.["official-artwork"]?.front_default ||
-      pokemon.sprites.front_default,
-    generationId,
-    generationName: getGenerationName(species.generation.url),
-  };
+    return {
+      id: pokemon.id,
+      name: pokemon.name,
+      height: pokemon.height,
+      weight: pokemon.weight,
+      types: pokemon.types.map((t) => ({
+        slot: t.slot,
+        name: t.type.name,
+      })),
+      sprite:
+        pokemon.sprites.other?.["official-artwork"]?.front_default ||
+        pokemon.sprites.front_default,
+      generationId,
+      generationName: getGenerationName(species.generation.url),
+    };
+  } catch (error) {
+    // Si falla la obtención de datos de especie/generación, devolver null
+    // El Pokémon será filtrado y no romperá la aplicación
+    return null;
+  }
 }
 
 /**
