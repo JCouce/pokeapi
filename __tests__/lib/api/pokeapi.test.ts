@@ -80,6 +80,19 @@ describe("Filter Utilities", () => {
       generationName: "Generation I",
     },
     {
+      id: 13,
+      name: "weedle",
+      height: 3,
+      weight: 32,
+      types: [
+        { slot: 1, name: "bug" },
+        { slot: 2, name: "poison" },
+      ],
+      sprite: "weedle.png",
+      generationId: 1,
+      generationName: "Generation I",
+    },
+    {
       id: 658,
       name: "greninja",
       height: 15,
@@ -109,7 +122,7 @@ describe("Filter Utilities", () => {
 
     it("should return all when no type specified", () => {
       const result = filterByType(mockPokemon, "");
-      expect(result).toHaveLength(3);
+      expect(result).toHaveLength(4);
     });
 
     it("should return empty array for non-existent type", () => {
@@ -121,6 +134,12 @@ describe("Filter Utilities", () => {
       const result = filterByType(mockPokemon, "fire,flying");
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("charizard");
+    });
+
+    it("should filter by bug AND poison types (Weedle)", () => {
+      const result = filterByType(mockPokemon, "bug,poison");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("weedle");
     });
 
     it("should return empty when pokemon doesn't have all selected types", () => {
@@ -138,8 +157,12 @@ describe("Filter Utilities", () => {
   describe("filterByGeneration", () => {
     it("should filter by generation 1", () => {
       const result = filterByGeneration(mockPokemon, "1");
-      expect(result).toHaveLength(2);
-      expect(result.map((p) => p.name)).toEqual(["pikachu", "charizard"]);
+      expect(result).toHaveLength(3);
+      expect(result.map((p) => p.name)).toEqual([
+        "pikachu",
+        "charizard",
+        "weedle",
+      ]);
     });
 
     it("should filter by generation 6", () => {
@@ -150,7 +173,7 @@ describe("Filter Utilities", () => {
 
     it("should return all when no generation specified", () => {
       const result = filterByGeneration(mockPokemon, "");
-      expect(result).toHaveLength(3);
+      expect(result).toHaveLength(4);
     });
   });
 
@@ -178,7 +201,7 @@ describe("Filter Utilities", () => {
 
     it("should return all when no filters", () => {
       const result = applyFilters(mockPokemon, {});
-      expect(result).toHaveLength(3);
+      expect(result).toHaveLength(4);
     });
   });
 });

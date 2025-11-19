@@ -9,13 +9,13 @@ export function filterByType(
   type: string
 ): EnrichedPokemon[] {
   if (!type) return pokemon;
-  
+
   // Separar tipos por coma
-  const types = type.split(',').filter(Boolean);
-  
+  const types = type.split(",").filter(Boolean);
+
   // El Pokémon debe tener TODOS los tipos seleccionados
-  return pokemon.filter((p) => 
-    types.every((selectedType) => 
+  return pokemon.filter((p) =>
+    types.every((selectedType) =>
       p.types.some((pokemonType) => pokemonType.name === selectedType)
     )
   );
