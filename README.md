@@ -162,13 +162,16 @@ pnpm lint
 The project uses **GitHub Actions** for continuous integration:
 
 ### Automated Checks on Pull Requests:
+
 - ✅ **Type Checking**: Verifies TypeScript types
 - ✅ **Linting**: Runs ESLint
 - ✅ **Unit Tests**: Executes all 48 tests
 - ✅ **Build**: Ensures production build succeeds
 
 ### Workflow Configuration
+
 Located at `.github/workflows/ci.yml`, the CI pipeline:
+
 - Runs on every PR to `main` or `develop`
 - Uses Node.js 20.x with pnpm
 - Caches dependencies for faster runs
