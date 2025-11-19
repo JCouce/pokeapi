@@ -24,6 +24,12 @@ export const PokemonSpritesSchema = z.object({
     .optional(),
 });
 
+// Schema para estadísticas de Pokémon
+export const PokemonStatSchema = z.object({
+  base_stat: z.number(),
+  stat: NamedAPIResourceSchema,
+});
+
 // Schema para datos básicos de Pokémon desde /pokemon endpoint
 export const PokemonSchema = z.object({
   id: z.number(),
@@ -33,6 +39,7 @@ export const PokemonSchema = z.object({
   types: z.array(PokemonTypeSchema),
   sprites: PokemonSpritesSchema,
   species: NamedAPIResourceSchema,
+  stats: z.array(PokemonStatSchema),
 });
 
 // Schema para PokemonSpecies (para obtener generación)
@@ -96,6 +103,7 @@ export const PaginatedResponseSchema = z.object({
 // Tipos TypeScript exportados
 export type NamedAPIResource = z.infer<typeof NamedAPIResourceSchema>;
 export type PokemonType = z.infer<typeof PokemonTypeSchema>;
+export type PokemonStat = z.infer<typeof PokemonStatSchema>;
 export type PokemonSprites = z.infer<typeof PokemonSpritesSchema>;
 export type Pokemon = z.infer<typeof PokemonSchema>;
 export type PokemonSpecies = z.infer<typeof PokemonSpeciesSchema>;
@@ -118,6 +126,10 @@ export interface EnrichedPokemon {
   generationId: number;
   generationName: string;
   evolutionChain: string[]; // Nombres de todos los Pokémon en la cadena evolutiva
+  stats: {
+    name: string;
+    value: number;
+  }[];
 }
 
 // Tipo para filtros

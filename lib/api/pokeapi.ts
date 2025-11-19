@@ -289,10 +289,28 @@ export async function enrichPokemonWithGeneration(
       generationId,
       generationName: getGenerationName(species.generation.url),
       evolutionChain,
+      stats: pokemon.stats.map((s) => ({
+        name: s.stat.name,
+        value: s.base_stat,
+      })),
     };
   } catch (error) {
     // Si falla la obtención de datos de especie/generación, devolver null
     // El Pokémon será filtrado y no romperá la aplicación
+    return null;
+  }
+}
+
+/**
+ * Obtiene un Pokémon enriquecido por ID o nombre
+ */
+export async function getEnrichedPokemon(
+  idOrName: string | number
+): Promise<EnrichedPokemon | null> {
+  try {
+    const pokemon = await getPokemonDetails(idOrName);
+    return await enrichPokemonWithGeneration(pokemon);
+  } catch (error) {
     return null;
   }
 }

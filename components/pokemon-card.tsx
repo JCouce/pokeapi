@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { type EnrichedPokemon } from '@/lib/types/pokemon';
 import {
   formatPokemonName,
@@ -15,14 +16,15 @@ interface PokemonCardProps {
 
 export function PokemonCard({ pokemon }: PokemonCardProps) {
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-200">
-      {/* Header with ID and Name */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">{formatPokemonName(pokemon.name)}</h2>
-          <span className="text-sm font-mono opacity-90">{formatPokemonNumber(pokemon.id)}</span>
+    <Link href={`/pokemon/${pokemon.id}`}>
+      <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 hover:scale-105 cursor-pointer">
+        {/* Header with ID and Name */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold">{formatPokemonName(pokemon.name)}</h2>
+            <span className="text-sm font-mono opacity-90">{formatPokemonNumber(pokemon.id)}</span>
+          </div>
         </div>
-      </div>
 
       {/* Image */}
       <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
@@ -81,5 +83,6 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
         </div>
       </div>
     </article>
+    </Link>
   );
 }

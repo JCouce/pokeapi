@@ -67,6 +67,14 @@ describe("Filter Utilities", () => {
       generationId: 1,
       generationName: "Generation I",
       evolutionChain: ["pichu", "pikachu", "raichu"],
+      stats: [
+        { name: "hp", value: 35 },
+        { name: "attack", value: 55 },
+        { name: "defense", value: 40 },
+        { name: "special-attack", value: 50 },
+        { name: "special-defense", value: 50 },
+        { name: "speed", value: 90 },
+      ],
     },
     {
       id: 6,
@@ -81,6 +89,14 @@ describe("Filter Utilities", () => {
       generationId: 1,
       generationName: "Generation I",
       evolutionChain: ["charmander", "charmeleon", "charizard"],
+      stats: [
+        { name: "hp", value: 78 },
+        { name: "attack", value: 84 },
+        { name: "defense", value: 78 },
+        { name: "special-attack", value: 109 },
+        { name: "special-defense", value: 85 },
+        { name: "speed", value: 100 },
+      ],
     },
     {
       id: 13,
@@ -95,6 +111,14 @@ describe("Filter Utilities", () => {
       generationId: 1,
       generationName: "Generation I",
       evolutionChain: ["weedle", "kakuna", "beedrill"],
+      stats: [
+        { name: "hp", value: 40 },
+        { name: "attack", value: 35 },
+        { name: "defense", value: 30 },
+        { name: "special-attack", value: 20 },
+        { name: "special-defense", value: 20 },
+        { name: "speed", value: 50 },
+      ],
     },
     {
       id: 658,
@@ -109,6 +133,14 @@ describe("Filter Utilities", () => {
       generationId: 6,
       generationName: "Generation VI",
       evolutionChain: ["froakie", "frogadier", "greninja"],
+      stats: [
+        { name: "hp", value: 72 },
+        { name: "attack", value: 95 },
+        { name: "defense", value: 67 },
+        { name: "special-attack", value: 103 },
+        { name: "special-defense", value: 71 },
+        { name: "speed", value: 122 },
+      ],
     },
   ];
 
