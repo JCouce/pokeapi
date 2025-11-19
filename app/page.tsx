@@ -1,39 +1,17 @@
 import { Suspense } from 'react';
 import { Filters } from '@/components/filters';
-import { PokemonListWrapper } from '@/components/pokemon-list-wrapper';
-import { getAllGenerations, getAllTypes, getFilteredPokemonList } from '@/lib/api/pokeapi';
+import { PokedexClient } from '@/components/pokedex-client';
+import { getAllGenerations, getAllTypes, getAllPokemon } from '@/lib/api/pokeapi';
 
 const ITEMS_PER_PAGE = 50;
 
-interface SearchParams {
-  type?: string;
-  generation?: string;
-  page?: string;
-}
-
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const params = await searchParams;
-  const currentPage = parseInt(params.page || '1', 10);
-  const typeFilter = params.type;
-  const generationFilter = params.generation;
-  const hasFilters = Boolean(typeFilter || generationFilter);
-
-  // Obtener datos necesarios para los filtros
-  const [generations, types, { pokemon, total, totalFiltered }] = await Promise.all([
+export default async function Home() {
+  // Cargar TODOS los datos una sola vez en el servidor
+  // El cliente manejará filtros y paginación instantáneamente
+  const [generations, types, allPokemon] = await Promise.all([
     getAllGenerations(),
     getAllTypes(),
-    getFilteredPokemonList(
-      {
-        type: typeFilter,
-        generation: generationFilter,
-        page: currentPage,
-      },
-      ITEMS_PER_PAGE
-    ),
+    getAllPokemon(), // Cargar los 500 Pokémon una sola vez
   ]);
 
   return (
@@ -45,7 +23,7 @@ export default async function Home({
             Pokédex
           </h1>
           <p className="text-gray-600 text-lg">
-            Explore all {total} Pokémon from all generations
+            Explore all {allPokemon.length} Pokémon from all generations
           </p>
         </header>
 
@@ -54,7 +32,7 @@ export default async function Home({
           <Filters generations={generations} types={types} />
         </Suspense>
 
-        {/* Pokemon List with intelligent caching */}
+        {/* Pokemon List - 100% cliente para filtros instantáneos */}
         <Suspense
           fallback={
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -64,12 +42,7 @@ export default async function Home({
             </div>
           }
         >
-          <PokemonListWrapper
-            initialPokemon={pokemon}
-            total={total}
-            hasFilters={hasFilters}
-            itemsPerPage={ITEMS_PER_PAGE}
-          />
+          <PokedexClient allPokemon={allPokemon} itemsPerPage={ITEMS_PER_PAGE} />
         </Suspense>
       </div>
     </div>

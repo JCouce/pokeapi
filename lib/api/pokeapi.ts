@@ -245,6 +245,41 @@ export async function enrichPokemonWithGeneration(
 }
 
 /**
+ * Obtiene TODOS los Pokémon enriquecidos (hasta MAX_FETCH)
+ * Para usar con filtrado 100% en cliente (instantáneo)
+ */
+export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
+  const MAX_FETCH = 500; // Limitar para no sobrecargar
+  const basicPokemon = await getAllPokemonBasic();
+  const pokemonToFetch = basicPokemon.slice(0, MAX_FETCH);
+
+  // Cargar en lotes de 20 para no saturar la API
+  const BATCH_SIZE = 20;
+  const allEnriched: EnrichedPokemon[] = [];
+
+  for (let i = 0; i < pokemonToFetch.length; i += BATCH_SIZE) {
+    const batch = pokemonToFetch.slice(i, i + BATCH_SIZE);
+    const batchPromises = batch.map(async (p) => {
+      try {
+        const id = extractIdFromUrl(p.url);
+        const details = await getPokemonDetails(id);
+        return await enrichPokemonWithGeneration(details);
+      } catch (error) {
+        return null;
+      }
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    const validResults = batchResults.filter(
+      (p): p is EnrichedPokemon => p !== null
+    );
+    allEnriched.push(...validResults);
+  }
+
+  return allEnriched;
+}
+
+/**
  * Obtiene Pokémon enriquecidos con paginación y filtros
  * 
  * Estrategia híbrida optimizada:
