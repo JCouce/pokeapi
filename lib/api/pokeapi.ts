@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import {
   PokemonSchema,
   PokemonSpeciesSchema,
@@ -353,6 +354,23 @@ export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
 
   return allEnriched;
 }
+
+/**
+ * Versión cacheada de getAllPokemon con Next.js unstable_cache
+ * Cache compartido entre todas las requests del servidor
+ * Revalidación cada 24 horas
+ */
+export const getCachedAllPokemon = unstable_cache(
+  async () => {
+    console.log('[Cache Miss] Cargando 500 Pokémon...');
+    return await getAllPokemon();
+  },
+  ['all-pokemon-cached'], // Cache key
+  {
+    revalidate: 86400, // 24 horas
+    tags: ['pokemon'], // Para invalidación manual si es necesario
+  }
+);
 
 /**
  * Obtiene Pokémon enriquecidos con paginación y filtros

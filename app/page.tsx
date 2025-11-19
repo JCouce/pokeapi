@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { Filters } from '@/components/filters';
 import { SearchBar } from '@/components/search-bar';
 import { PokedexClient } from '@/components/pokedex-client';
-import { getAllGenerations, getAllTypes, getAllPokemon } from '@/lib/api/pokeapi';
+import { getAllGenerations, getAllTypes, getCachedAllPokemon } from '@/lib/api/pokeapi';
 
 const ITEMS_PER_PAGE = 50;
 
@@ -12,7 +12,7 @@ export default async function Home() {
   const [generations, types, allPokemon] = await Promise.all([
     getAllGenerations(),
     getAllTypes(),
-    getAllPokemon(), // Cargar los 500 Pokémon una sola vez
+    getCachedAllPokemon(), // Versión cacheada - <100ms después del primer request
   ]);
 
   return (
