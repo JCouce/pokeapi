@@ -1,4 +1,9 @@
-# Pokédex - Next.js 15 & TypeScriptThis is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pokédex - Next.js 15 & TypeScript
+
+![CI Status](https://github.com/YOUR_USERNAME/pokeapi/workflows/CI%20-%20Run%20Tests/badge.svg)
+![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
+![Tests](https://img.shields.io/badge/tests-48%20passing-green)
 
 A modern, fully-featured Pokédex application built with Next.js 15, TypeScript, and the PokéAPI. Features server-side rendering, advanced filtering, and pagination.## Getting Started
 
@@ -132,14 +137,44 @@ pokeapi/
 The project includes comprehensive unit tests for critical functionality:
 
 - ✅ API utility functions (ID extraction, generation formatting)
-- ✅ Filter utilities (by type, by generation, combined filters)
+- ✅ Filter utilities (by type, by generation, search by name/evolution)
 - ✅ Format utilities (names, weights, heights, numbers)
+- ✅ Evolution chain logic
 
-**Test Coverage**: 33 passing tests
+**Test Coverage**: 48 passing tests
 
 ```bash
+# Run all tests
 pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run type checking
+pnpm type-check
+
+# Run linting
+pnpm lint
 ```
+
+## 🔄 CI/CD
+
+The project uses **GitHub Actions** for continuous integration:
+
+### Automated Checks on Pull Requests:
+- ✅ **Type Checking**: Verifies TypeScript types
+- ✅ **Linting**: Runs ESLint
+- ✅ **Unit Tests**: Executes all 48 tests
+- ✅ **Build**: Ensures production build succeeds
+
+### Workflow Configuration
+Located at `.github/workflows/ci.yml`, the CI pipeline:
+- Runs on every PR to `main` or `develop`
+- Uses Node.js 20.x with pnpm
+- Caches dependencies for faster runs
+- Runs in parallel (test + lint jobs)
+
+To see the CI status, check the badge at the top of this README or visit the Actions tab in GitHub.
 
 ## 🎨 Component Architecture
 
