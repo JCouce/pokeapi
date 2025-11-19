@@ -34,11 +34,36 @@ export function filterByGeneration(
 }
 
 /**
+ * Filtra Pokémon por búsqueda de nombre
+ * Busca tanto en el nombre del Pokémon como en su cadena evolutiva
+ */
+export function filterBySearch(
+  pokemon: EnrichedPokemon[],
+  search: string
+): EnrichedPokemon[] {
+  if (!search) return pokemon;
+  
+  const searchLower = search.toLowerCase().trim();
+  
+  return pokemon.filter((p) => {
+    // Buscar en el nombre del Pokémon
+    if (p.name.toLowerCase().includes(searchLower)) {
+      return true;
+    }
+    
+    // Buscar en la cadena evolutiva
+    return p.evolutionChain.some((evolution) =>
+      evolution.toLowerCase().includes(searchLower)
+    );
+  });
+}
+
+/**
  * Aplica todos los filtros
  */
 export function applyFilters(
   pokemon: EnrichedPokemon[],
-  filters: { type?: string; generation?: string }
+  filters: { type?: string; generation?: string; search?: string }
 ): EnrichedPokemon[] {
   let filtered = pokemon;
 
@@ -48,6 +73,10 @@ export function applyFilters(
 
   if (filters.generation) {
     filtered = filterByGeneration(filtered, filters.generation);
+  }
+
+  if (filters.search) {
+    filtered = filterBySearch(filtered, filters.search);
   }
 
   return filtered;

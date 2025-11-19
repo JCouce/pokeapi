@@ -40,6 +40,30 @@ export const PokemonSpeciesSchema = z.object({
   id: z.number(),
   name: z.string(),
   generation: NamedAPIResourceSchema,
+  evolution_chain: z.object({
+    url: z.string(),
+  }),
+});
+
+// Schema para cadena de evolución
+export const EvolutionChainSchema = z.object({
+  id: z.number(),
+  chain: z.lazy(() =>
+    z.object({
+      species: NamedAPIResourceSchema,
+      evolves_to: z.array(
+        z.object({
+          species: NamedAPIResourceSchema,
+          evolves_to: z.array(
+            z.object({
+              species: NamedAPIResourceSchema,
+              evolves_to: z.array(z.any()),
+            })
+          ),
+        })
+      ),
+    })
+  ),
 });
 
 // Schema para Generation
@@ -75,6 +99,7 @@ export type PokemonType = z.infer<typeof PokemonTypeSchema>;
 export type PokemonSprites = z.infer<typeof PokemonSpritesSchema>;
 export type Pokemon = z.infer<typeof PokemonSchema>;
 export type PokemonSpecies = z.infer<typeof PokemonSpeciesSchema>;
+export type EvolutionChain = z.infer<typeof EvolutionChainSchema>;
 export type Generation = z.infer<typeof GenerationSchema>;
 export type Type = z.infer<typeof TypeSchema>;
 export type PaginatedResponse = z.infer<typeof PaginatedResponseSchema>;
@@ -92,11 +117,12 @@ export interface EnrichedPokemon {
   sprite: string | null;
   generationId: number;
   generationName: string;
+  evolutionChain: string[]; // Nombres de todos los Pokémon en la cadena evolutiva
 }
 
 // Tipo para filtros
 export interface PokemonFilters {
   type?: string;
   generation?: string;
-  page?: number;
+  search?: string; // Búsqueda por nombre
 }

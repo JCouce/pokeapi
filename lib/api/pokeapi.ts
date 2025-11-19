@@ -1,12 +1,14 @@
 import {
   PokemonSchema,
   PokemonSpeciesSchema,
+  EvolutionChainSchema,
   GenerationSchema,
   TypeSchema,
   PaginatedResponseSchema,
   type EnrichedPokemon,
   type Pokemon,
   type PokemonSpecies,
+  type EvolutionChain,
   type Generation,
   type Type,
 } from "@/lib/types/pokemon";
@@ -122,6 +124,46 @@ export async function getPokemonSpecies(
 }
 
 /**
+ * Obtiene la cadena de evolución de un Pokémon
+ * Incluye timeout y reintentos automáticos
+ */
+export async function getEvolutionChain(url: string): Promise<EvolutionChain> {
+  try {
+    const response = await fetchWithTimeout(url, {
+      next: { revalidate: 86400 },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch evolution chain (Status: ${response.status})`);
+    }
+
+    const data = await response.json();
+    return EvolutionChainSchema.parse(data);
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
+ * Extrae todos los nombres de Pokémon de una cadena de evolución
+ */
+export function extractEvolutionNames(chain: EvolutionChain): string[] {
+  const names: string[] = [];
+
+  function traverse(node: any) {
+    if (node.species?.name) {
+      names.push(node.species.name);
+    }
+    if (node.evolves_to && Array.isArray(node.evolves_to)) {
+      node.evolves_to.forEach((evolution: any) => traverse(evolution));
+    }
+  }
+
+  traverse(chain.chain);
+  return names;
+}
+
+/**
  * Obtiene todas las generaciones
  */
 export async function getAllGenerations(): Promise<Generation[]> {
@@ -210,7 +252,7 @@ const romanNumerals: Record<number, string> = {
 };
 
 /**
- * Enriquece un Pokémon con información de especie/generación
+ * Enriquece un Pokémon con información de especie/generación/evoluciones
  * Devuelve null si no se puede obtener la información (manejo de errores gracefully)
  */
 export async function enrichPokemonWithGeneration(
@@ -221,6 +263,16 @@ export async function enrichPokemonWithGeneration(
     const species = await getPokemonSpecies(speciesId);
 
     const generationId = extractIdFromUrl(species.generation.url);
+
+    // Obtener cadena de evolución
+    let evolutionChain: string[] = [];
+    try {
+      const evolutionData = await getEvolutionChain(species.evolution_chain.url);
+      evolutionChain = extractEvolutionNames(evolutionData);
+    } catch (error) {
+      // Si falla, usar solo el nombre del Pokémon actual
+      evolutionChain = [pokemon.name];
+    }
 
     return {
       id: pokemon.id,
@@ -236,6 +288,7 @@ export async function enrichPokemonWithGeneration(
         pokemon.sprites.front_default,
       generationId,
       generationName: getGenerationName(species.generation.url),
+      evolutionChain,
     };
   } catch (error) {
     // Si falla la obtención de datos de especie/generación, devolver null
@@ -281,7 +334,7 @@ export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
 
 /**
  * Obtiene Pokémon enriquecidos con paginación y filtros
- * 
+ *
  * Estrategia híbrida optimizada:
  * - Sin filtros: Carga solo la página actual (50 Pokémon) - Server-side pagination
  * - Con filtros: Carga un dataset más grande (500 Pokémon) para caché en cliente

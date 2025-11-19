@@ -3,6 +3,7 @@ import { extractIdFromUrl, getGenerationName } from "@/lib/api/pokeapi";
 import {
   filterByType,
   filterByGeneration,
+  filterBySearch,
   applyFilters,
   capitalize,
   formatPokemonName,
@@ -65,6 +66,7 @@ describe("Filter Utilities", () => {
       sprite: "pikachu.png",
       generationId: 1,
       generationName: "Generation I",
+      evolutionChain: ["pichu", "pikachu", "raichu"],
     },
     {
       id: 6,
@@ -78,6 +80,7 @@ describe("Filter Utilities", () => {
       sprite: "charizard.png",
       generationId: 1,
       generationName: "Generation I",
+      evolutionChain: ["charmander", "charmeleon", "charizard"],
     },
     {
       id: 13,
@@ -91,6 +94,7 @@ describe("Filter Utilities", () => {
       sprite: "weedle.png",
       generationId: 1,
       generationName: "Generation I",
+      evolutionChain: ["weedle", "kakuna", "beedrill"],
     },
     {
       id: 658,
@@ -104,6 +108,7 @@ describe("Filter Utilities", () => {
       sprite: "greninja.png",
       generationId: 6,
       generationName: "Generation VI",
+      evolutionChain: ["froakie", "frogadier", "greninja"],
     },
   ];
 
@@ -177,6 +182,56 @@ describe("Filter Utilities", () => {
     });
   });
 
+  describe("filterBySearch", () => {
+    it("should find pokemon by exact name", () => {
+      const result = filterBySearch(mockPokemon, "pikachu");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("pikachu");
+    });
+
+    it("should find pokemon by partial name", () => {
+      const result = filterBySearch(mockPokemon, "char");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("charizard");
+    });
+
+    it("should find pokemon by evolution name (pichu finds pikachu)", () => {
+      const result = filterBySearch(mockPokemon, "pichu");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("pikachu");
+      expect(result[0].evolutionChain).toContain("pichu");
+    });
+
+    it("should find pokemon by evolution name (raichu finds pikachu)", () => {
+      const result = filterBySearch(mockPokemon, "raichu");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("pikachu");
+      expect(result[0].evolutionChain).toContain("raichu");
+    });
+
+    it("should find pokemon by evolution name (charmander finds charizard)", () => {
+      const result = filterBySearch(mockPokemon, "charmander");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("charizard");
+    });
+
+    it("should be case insensitive", () => {
+      const result = filterBySearch(mockPokemon, "PIKACHU");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("pikachu");
+    });
+
+    it("should return all when search is empty", () => {
+      const result = filterBySearch(mockPokemon, "");
+      expect(result).toHaveLength(4);
+    });
+
+    it("should return empty array when no matches", () => {
+      const result = filterBySearch(mockPokemon, "mewtwo");
+      expect(result).toHaveLength(0);
+    });
+  });
+
   describe("applyFilters", () => {
     it("should apply type and generation filters together", () => {
       const result = applyFilters(mockPokemon, {
@@ -197,6 +252,28 @@ describe("Filter Utilities", () => {
       const result = applyFilters(mockPokemon, { generation: "6" });
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("greninja");
+    });
+
+    it("should work with only search filter", () => {
+      const result = applyFilters(mockPokemon, { search: "pikachu" });
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("pikachu");
+    });
+
+    it("should work with search by evolution", () => {
+      const result = applyFilters(mockPokemon, { search: "raichu" });
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("pikachu");
+    });
+
+    it("should combine all filters (type + generation + search)", () => {
+      const result = applyFilters(mockPokemon, {
+        type: "fire",
+        generation: "1",
+        search: "char",
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("charizard");
     });
 
     it("should return all when no filters", () => {

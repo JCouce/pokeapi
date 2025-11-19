@@ -65,7 +65,12 @@ export function Filters({ generations, types }: FiltersProps) {
   };
 
   const handleClearFilters = () => {
-    updateURL(new URLSearchParams());
+    // Mantener la búsqueda si existe, solo limpiar type y generation
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('type');
+    params.delete('generation');
+    params.set('page', '1');
+    updateURL(params);
   };
 
   const hasActiveFilters = currentTypes.length > 0 || currentGeneration;

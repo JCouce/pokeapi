@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { Filters } from '@/components/filters';
+import { SearchBar } from '@/components/search-bar';
 import { PokedexClient } from '@/components/pokedex-client';
 import { getAllGenerations, getAllTypes, getAllPokemon } from '@/lib/api/pokeapi';
 
@@ -26,6 +27,13 @@ export default async function Home() {
             Explore all {allPokemon.length} Pokémon from all generations
           </p>
         </header>
+
+        {/* Search Bar */}
+        <Suspense fallback={<div className="h-16 bg-white rounded-lg shadow-md animate-pulse mb-6" />}>
+          <div className="mb-6">
+            <SearchBar />
+          </div>
+        </Suspense>
 
         {/* Filters */}
         <Suspense fallback={<div className="h-32 bg-white rounded-lg shadow-md animate-pulse" />}>

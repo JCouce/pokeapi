@@ -28,6 +28,7 @@ export function PokedexClient({ allPokemon, itemsPerPage }: PokedexClientProps) 
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const typeFilter = searchParams.get('type') || '';
   const generationFilter = searchParams.get('generation') || '';
+  const searchFilter = searchParams.get('search') || '';
 
   // Escuchar cambios de URL sin re-render del servidor
   useEffect(() => {
@@ -50,6 +51,7 @@ export function PokedexClient({ allPokemon, itemsPerPage }: PokedexClientProps) 
     const filtered = applyFilters(allPokemon, {
       type: typeFilter,
       generation: generationFilter,
+      search: searchFilter,
     });
 
     // 2. Calcular paginación
@@ -62,7 +64,7 @@ export function PokedexClient({ allPokemon, itemsPerPage }: PokedexClientProps) 
       totalFiltered: filtered.length,
       totalPages: Math.ceil(filtered.length / itemsPerPage),
     };
-  }, [allPokemon, typeFilter, generationFilter, currentPage, itemsPerPage, refreshKey]);
+  }, [allPokemon, typeFilter, generationFilter, searchFilter, currentPage, itemsPerPage, refreshKey]);
 
   // Si la página actual es mayor que el total de páginas, volver a la página 1
   useEffect(() => {
