@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PokemonList } from './pokemon-list';
 import { Pagination } from './pagination';
@@ -37,25 +37,12 @@ export function PokemonListWrapper({
   const typeFilter = searchParams.get('type') || '';
   const generationFilter = searchParams.get('generation') || '';
 
-  // Caché de todos los Pokémon cuando hay filtros activos
-  const [pokemonCache, setPokemonCache] = useState<EnrichedPokemon[]>(initialPokemon);
-  const [isClientSideFiltering, setIsClientSideFiltering] = useState(hasFilters);
-
-  // Actualizar caché cuando llegan nuevos datos del servidor
-  useEffect(() => {
-    if (hasFilters && initialPokemon.length > itemsPerPage) {
-      // El servidor nos envió un dataset completo para cachear
-      setPokemonCache(initialPokemon);
-      setIsClientSideFiltering(true);
-    } else if (!hasFilters) {
-      // Sin filtros, volvemos a server-side pagination
-      setIsClientSideFiltering(false);
-    }
-  }, [hasFilters, initialPokemon, itemsPerPage]);
+  // Determinar si debemos usar filtrado en cliente
+  const shouldUseClientFiltering = hasFilters && initialPokemon.length > itemsPerPage;
 
   // Filtrado y paginación en cliente (cuando hay filtros)
   const { paginatedPokemon, totalFiltered, totalPages } = useMemo(() => {
-    if (!isClientSideFiltering) {
+    if (!shouldUseClientFiltering) {
       // Server-side: usar datos tal cual vienen
       return {
         paginatedPokemon: initialPokemon,
@@ -64,8 +51,8 @@ export function PokemonListWrapper({
       };
     }
 
-    // Client-side: aplicar filtros sobre el caché
-    const filtered = applyFilters(pokemonCache, {
+    // Client-side: aplicar filtros sobre todos los Pokémon
+    const filtered = applyFilters(initialPokemon, {
       type: typeFilter,
       generation: generationFilter,
     });
@@ -81,8 +68,7 @@ export function PokemonListWrapper({
       totalPages: Math.ceil(filtered.length / itemsPerPage),
     };
   }, [
-    isClientSideFiltering,
-    pokemonCache,
+    shouldUseClientFiltering,
     initialPokemon,
     typeFilter,
     generationFilter,

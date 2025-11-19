@@ -2,16 +2,12 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Search, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export function SearchBar() {
   const searchParams = useSearchParams();
-  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
-
-  // Sincronizar con URL cuando cambia externamente
-  useEffect(() => {
-    setSearchValue(searchParams.get('search') || '');
-  }, [searchParams]);
+  const urlSearch = searchParams.get('search') || '';
+  const [searchValue, setSearchValue] = useState(urlSearch);
 
   const updateURL = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -63,7 +59,7 @@ export function SearchBar() {
       </div>
       {searchValue && (
         <p className="text-sm text-gray-500 mt-2">
-          Searching for "{searchValue}" in Pokémon names and their evolutions
+          Searching for &quot;{searchValue}&quot; in Pokémon names and their evolutions
         </p>
       )}
     </div>

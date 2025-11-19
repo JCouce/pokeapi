@@ -7,8 +7,8 @@ export default function NotFound() {
         <div className="text-8xl mb-4">404</div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Page Not Found</h1>
         <p className="text-gray-600 mb-8">
-          The page you're looking for doesn't exist. Perhaps you're searching for a Pokémon that
-          hasn't been discovered yet!
+          The page you&apos;re looking for doesn&apos;t exist. Perhaps you&apos;re searching for a Pokémon that
+          hasn&apos;t been discovered yet!
         </p>
         <Link
           href="/"

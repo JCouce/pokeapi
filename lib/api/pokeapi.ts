@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import {
   PokemonSchema,
   PokemonSpeciesSchema,
@@ -152,16 +153,21 @@ export async function getEvolutionChain(url: string): Promise<EvolutionChain> {
 export function extractEvolutionNames(chain: EvolutionChain): string[] {
   const names: string[] = [];
 
-  function traverse(node: any) {
+  interface EvolutionNode {
+    species?: { name: string };
+    evolves_to?: EvolutionNode[];
+  }
+
+  function traverse(node: EvolutionNode) {
     if (node.species?.name) {
       names.push(node.species.name);
     }
     if (node.evolves_to && Array.isArray(node.evolves_to)) {
-      node.evolves_to.forEach((evolution: any) => traverse(evolution));
+      node.evolves_to.forEach((evolution: EvolutionNode) => traverse(evolution));
     }
   }
 
-  traverse(chain.chain);
+  traverse(chain.chain as EvolutionNode);
   return names;
 }
 
@@ -273,7 +279,7 @@ export async function enrichPokemonWithGeneration(
         species.evolution_chain.url
       );
       evolutionChain = extractEvolutionNames(evolutionData);
-    } catch (error) {
+    } catch {
       // Si falla, usar solo el nombre del Pokémon actual
       evolutionChain = [pokemon.name];
     }
@@ -298,7 +304,7 @@ export async function enrichPokemonWithGeneration(
         value: s.base_stat,
       })),
     };
-  } catch (error) {
+  } catch {
     // Si falla la obtención de datos de especie/generación, devolver null
     // El Pokémon será filtrado y no romperá la aplicación
     return null;
@@ -314,7 +320,7 @@ export async function getEnrichedPokemon(
   try {
     const pokemon = await getPokemonDetails(idOrName);
     return await enrichPokemonWithGeneration(pokemon);
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -339,7 +345,7 @@ export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
         const id = extractIdFromUrl(p.url);
         const details = await getPokemonDetails(id);
         return await enrichPokemonWithGeneration(details);
-      } catch (error) {
+      } catch {
         return null;
       }
     });
@@ -353,6 +359,23 @@ export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
 
   return allEnriched;
 }
+
+/**
+ * Versión cacheada de getAllPokemon con Next.js unstable_cache
+ * Cache compartido entre todas las requests del servidor
+ * Revalidación cada 24 horas
+ */
+export const getCachedAllPokemon = unstable_cache(
+  async () => {
+    console.log("[Cache Miss] Cargando 500 Pokémon...");
+    return await getAllPokemon();
+  },
+  ["all-pokemon-cached"], // Cache key
+  {
+    revalidate: 86400, // 24 horas
+    tags: ["pokemon"], // Para invalidación manual si es necesario
+  }
+);
 
 /**
  * Obtiene Pokémon enriquecidos con paginación y filtros
@@ -389,7 +412,7 @@ export async function getFilteredPokemonList(
           const id = extractIdFromUrl(p.url);
           const details = await getPokemonDetails(id);
           return enrichPokemonWithGeneration(details);
-        } catch (error) {
+        } catch {
           // Si un Pokémon falla (ej: error 500 en la API), lo omitimos
           return null;
         }
@@ -421,7 +444,7 @@ export async function getFilteredPokemonList(
           const id = extractIdFromUrl(p.url);
           const details = await getPokemonDetails(id);
           return enrichPokemonWithGeneration(details);
-        } catch (error) {
+        } catch {
           return null;
         }
       })
