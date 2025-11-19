@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 interface PaginationProps {
   currentPage: number;
@@ -10,13 +10,14 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }: PaginationProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
-    router.push(`/?${params.toString()}`);
+    const url = `/?${params.toString()}`;
+    window.history.pushState(null, '', url);
+    window.dispatchEvent(new Event('urlchange'));
   };
 
   const getPageNumbers = () => {

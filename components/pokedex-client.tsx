@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PokemonList } from './pokemon-list';
 import { Pagination } from './pagination';
 import { type EnrichedPokemon } from '@/lib/types/pokemon';
@@ -22,12 +22,27 @@ interface PokedexClientProps {
  * - Sin re-renders del servidor
  */
 export function PokedexClient({ allPokemon, itemsPerPage }: PokedexClientProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const typeFilter = searchParams.get('type') || '';
   const generationFilter = searchParams.get('generation') || '';
+
+  // Escuchar cambios de URL sin re-render del servidor
+  useEffect(() => {
+    const handleURLChange = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+
+    window.addEventListener('urlchange', handleURLChange);
+    window.addEventListener('popstate', handleURLChange);
+
+    return () => {
+      window.removeEventListener('urlchange', handleURLChange);
+      window.removeEventListener('popstate', handleURLChange);
+    };
+  }, []);
 
   // Aplicar filtros y paginación en memoria (instantáneo)
   const { paginatedPokemon, totalFiltered, totalPages } = useMemo(() => {
@@ -47,14 +62,18 @@ export function PokedexClient({ allPokemon, itemsPerPage }: PokedexClientProps) 
       totalFiltered: filtered.length,
       totalPages: Math.ceil(filtered.length / itemsPerPage),
     };
-  }, [allPokemon, typeFilter, generationFilter, currentPage, itemsPerPage]);
+  }, [allPokemon, typeFilter, generationFilter, currentPage, itemsPerPage, refreshKey]);
 
   // Si la página actual es mayor que el total de páginas, volver a la página 1
-  if (currentPage > totalPages && totalPages > 0) {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('page', '1');
-    router.replace(`?${params.toString()}`);
-  }
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      const url = `?${params.toString()}`;
+      window.history.pushState(null, '', url);
+      window.dispatchEvent(new Event('urlchange'));
+    }
+  }, [currentPage, totalPages, searchParams]);
 
   return (
     <>

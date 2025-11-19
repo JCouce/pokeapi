@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { type Generation, type Type } from '@/lib/types/pokemon';
 import { capitalize } from '@/lib/utils/helpers';
 
@@ -10,12 +10,19 @@ interface FiltersProps {
 }
 
 export function Filters({ generations, types }: FiltersProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Obtener tipos como array (separados por coma)
   const currentTypes = searchParams.get('type')?.split(',').filter(Boolean) || [];
   const currentGeneration = searchParams.get('generation') || '';
+
+  // Actualizar URL sin re-render del servidor
+  const updateURL = (params: URLSearchParams) => {
+    const url = params.toString() ? `?${params.toString()}` : '/';
+    window.history.pushState(null, '', url);
+    // Disparar evento personalizado para que el componente cliente reaccione
+    window.dispatchEvent(new Event('urlchange'));
+  };
 
   // Manejar toggle de tipo (agregar o quitar)
   const handleTypeToggle = (typeName: string) => {
@@ -39,7 +46,7 @@ export function Filters({ generations, types }: FiltersProps) {
     // Reset a la primera página cuando cambian los filtros
     params.set('page', '1');
 
-    router.push(`/?${params.toString()}`);
+    updateURL(params);
   };
 
   const handleGenerationChange = (value: string) => {
@@ -54,11 +61,11 @@ export function Filters({ generations, types }: FiltersProps) {
     // Reset a la primera página cuando cambian los filtros
     params.set('page', '1');
 
-    router.push(`/?${params.toString()}`);
+    updateURL(params);
   };
 
   const handleClearFilters = () => {
-    router.push('/');
+    updateURL(new URLSearchParams());
   };
 
   const hasActiveFilters = currentTypes.length > 0 || currentGeneration;
