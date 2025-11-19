@@ -1,14 +1,24 @@
 import { type EnrichedPokemon } from "@/lib/types/pokemon";
 
 /**
- * Filtra Pokémon por tipo
+ * Filtra Pokémon por tipo(s)
+ * Si se pasan múltiples tipos (separados por coma), el Pokémon debe tener TODOS los tipos
  */
 export function filterByType(
   pokemon: EnrichedPokemon[],
   type: string
 ): EnrichedPokemon[] {
   if (!type) return pokemon;
-  return pokemon.filter((p) => p.types.some((t) => t.name === type));
+  
+  // Separar tipos por coma
+  const types = type.split(',').filter(Boolean);
+  
+  // El Pokémon debe tener TODOS los tipos seleccionados
+  return pokemon.filter((p) => 
+    types.every((selectedType) => 
+      p.types.some((pokemonType) => pokemonType.name === selectedType)
+    )
+  );
 }
 
 /**

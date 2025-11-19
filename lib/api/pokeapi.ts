@@ -280,7 +280,9 @@ export async function getFilteredPokemonList(
     );
 
     // Filtrar los null (Pokémon que fallaron)
-    const enrichedPokemon = results.filter((p): p is EnrichedPokemon => p !== null);
+    const enrichedPokemon = results.filter(
+      (p): p is EnrichedPokemon => p !== null
+    );
 
     return { pokemon: enrichedPokemon, total, totalFiltered: total };
   }

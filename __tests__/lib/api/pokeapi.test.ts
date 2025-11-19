@@ -116,6 +116,23 @@ describe("Filter Utilities", () => {
       const result = filterByType(mockPokemon, "ghost");
       expect(result).toHaveLength(0);
     });
+
+    it("should filter by multiple types (fire AND flying)", () => {
+      const result = filterByType(mockPokemon, "fire,flying");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("charizard");
+    });
+
+    it("should return empty when pokemon doesn't have all selected types", () => {
+      const result = filterByType(mockPokemon, "fire,water");
+      expect(result).toHaveLength(0);
+    });
+
+    it("should work with multiple types in different order", () => {
+      const result = filterByType(mockPokemon, "flying,fire");
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("charizard");
+    });
   });
 
   describe("filterByGeneration", () => {

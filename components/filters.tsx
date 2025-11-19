@@ -13,17 +13,42 @@ export function Filters({ generations, types }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentType = searchParams.get('type') || '';
+  // Obtener tipos como array (separados por coma)
+  const currentTypes = searchParams.get('type')?.split(',').filter(Boolean) || [];
   const currentGeneration = searchParams.get('generation') || '';
-  const currentPage = searchParams.get('page') || '1';
 
-  const handleFilterChange = (filterType: 'type' | 'generation', value: string) => {
+  // Manejar toggle de tipo (agregar o quitar)
+  const handleTypeToggle = (typeName: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    let newTypes: string[];
+    if (currentTypes.includes(typeName)) {
+      // Quitar el tipo si ya está seleccionado
+      newTypes = currentTypes.filter(t => t !== typeName);
+    } else {
+      // Agregar el tipo si no está seleccionado
+      newTypes = [...currentTypes, typeName];
+    }
+
+    if (newTypes.length > 0) {
+      params.set('type', newTypes.join(','));
+    } else {
+      params.delete('type');
+    }
+
+    // Reset a la primera página cuando cambian los filtros
+    params.set('page', '1');
+
+    router.push(`/?${params.toString()}`);
+  };
+
+  const handleGenerationChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (value) {
-      params.set(filterType, value);
+      params.set('generation', value);
     } else {
-      params.delete(filterType);
+      params.delete('generation');
     }
 
     // Reset a la primera página cuando cambian los filtros
@@ -36,85 +61,92 @@ export function Filters({ generations, types }: FiltersProps) {
     router.push('/');
   };
 
-  const hasActiveFilters = currentType || currentGeneration;
+  const hasActiveFilters = currentTypes.length > 0 || currentGeneration;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
-        {/* Type Filter */}
-        <div className="flex-1 w-full">
-          <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 mb-2">
-            Filter by Type
+      <div className="flex flex-col gap-6">
+        {/* Type Filter - Multiple Selection */}
+        <div className="w-full">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Filter by Type (select multiple)
           </label>
-          <select
-            id="type-filter"
-            value={currentType}
-            onChange={(e) => handleFilterChange('type', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer"
-          >
-            <option value="">All Types</option>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
             {types
               .sort((a, b) => a.name.localeCompare(b.name))
-              .map((type) => (
-                <option key={type.id} value={type.name}>
-                  {capitalize(type.name)}
-                </option>
-              ))}
-          </select>
+              .map((type) => {
+                const isSelected = currentTypes.includes(type.name);
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => handleTypeToggle(type.name)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                    }`}
+                  >
+                    {capitalize(type.name)}
+                  </button>
+                );
+              })}
+          </div>
         </div>
 
         {/* Generation Filter */}
-        <div className="flex-1 w-full">
-          <label htmlFor="generation-filter" className="block text-sm font-medium text-gray-700 mb-2">
-            Filter by Generation
-          </label>
-          <select
-            id="generation-filter"
-            value={currentGeneration}
-            onChange={(e) => handleFilterChange('generation', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer"
-          >
-            <option value="">All Generations</option>
-            {generations.map((gen) => (
-              <option key={gen.id} value={gen.id.toString()}>
-                Generation {getRomanNumeral(gen.id)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+          <div className="flex-1 w-full">
+            <label htmlFor="generation-filter" className="block text-sm font-medium text-gray-700 mb-2">
+              Filter by Generation
+            </label>
+            <select
+              id="generation-filter"
+              value={currentGeneration}
+              onChange={(e) => handleGenerationChange(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer"
+            >
+              <option value="">All Generations</option>
+              {generations.map((gen) => (
+                <option key={gen.id} value={gen.id.toString()}>
+                  Generation {getRomanNumeral(gen.id)}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Clear Filters Button */}
-        {hasActiveFilters && (
-          <button
-            onClick={handleClearFilters}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 hover:shadow-md transition-all duration-200 whitespace-nowrap cursor-pointer font-medium"
-          >
-            Clear Filters
-          </button>
-        )}
+          {/* Clear Filters Button */}
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 hover:shadow-md transition-all duration-200 whitespace-nowrap cursor-pointer font-medium"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Active Filters Display */}
       {hasActiveFilters && (
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="text-sm text-gray-600">Active filters:</span>
-          {currentType && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-              Type: {capitalize(currentType)}
+          {currentTypes.map((type) => (
+            <span key={type} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+              Type: {capitalize(type)}
               <button
-                onClick={() => handleFilterChange('type', '')}
+                onClick={() => handleTypeToggle(type)}
                 className="ml-1 hover:text-blue-900 hover:scale-110 transition-all duration-200 cursor-pointer font-bold"
-                aria-label="Remove type filter"
+                aria-label={`Remove ${type} filter`}
               >
                 ×
               </button>
             </span>
-          )}
+          ))}
           {currentGeneration && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
               Gen {getRomanNumeral(parseInt(currentGeneration))}
               <button
-                onClick={() => handleFilterChange('generation', '')}
+                onClick={() => handleGenerationChange('')}
                 className="ml-1 hover:text-purple-900 hover:scale-110 transition-all duration-200 cursor-pointer font-bold"
                 aria-label="Remove generation filter"
               >
