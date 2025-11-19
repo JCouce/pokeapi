@@ -212,13 +212,21 @@ export async function getFilteredPokemonList(
   if (!filters.type && !filters.generation) {
     const paginatedList = allPokemon.slice(offset, offset + limit);
 
-    const enrichedPokemon = await Promise.all(
+    const results = await Promise.all(
       paginatedList.map(async (p) => {
-        const id = extractIdFromUrl(p.url);
-        const details = await getPokemonDetails(id);
-        return enrichPokemonWithGeneration(details);
+        try {
+          const id = extractIdFromUrl(p.url);
+          const details = await getPokemonDetails(id);
+          return enrichPokemonWithGeneration(details);
+        } catch (error) {
+          // Si un Pokémon falla (ej: error 500 en la API), lo omitimos
+          return null;
+        }
       })
     );
+
+    // Filtrar los null (Pokémon que fallaron)
+    const enrichedPokemon = results.filter((p): p is EnrichedPokemon => p !== null);
 
     return { pokemon: enrichedPokemon, total, totalFiltered: total };
   }
