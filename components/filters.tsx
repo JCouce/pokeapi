@@ -115,7 +115,7 @@ export function Filters({ generations, types }: FiltersProps) {
               id="generation-filter"
               value={currentGeneration}
               onChange={(e) => handleGenerationChange(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer text-gray-900"
             >
               <option value="">All Generations</option>
               {generations.map((gen) => (
