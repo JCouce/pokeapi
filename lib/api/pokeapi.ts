@@ -134,7 +134,9 @@ export async function getEvolutionChain(url: string): Promise<EvolutionChain> {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch evolution chain (Status: ${response.status})`);
+      throw new Error(
+        `Failed to fetch evolution chain (Status: ${response.status})`
+      );
     }
 
     const data = await response.json();
@@ -267,7 +269,9 @@ export async function enrichPokemonWithGeneration(
     // Obtener cadena de evolución
     let evolutionChain: string[] = [];
     try {
-      const evolutionData = await getEvolutionChain(species.evolution_chain.url);
+      const evolutionData = await getEvolutionChain(
+        species.evolution_chain.url
+      );
       evolutionChain = extractEvolutionNames(evolutionData);
     } catch (error) {
       // Si falla, usar solo el nombre del Pokémon actual
