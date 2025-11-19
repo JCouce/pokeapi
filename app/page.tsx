@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { Filters } from '@/components/filters';
-import { PokemonList } from '@/components/pokemon-list';
-import { Pagination } from '@/components/pagination';
+import { PokemonListWrapper } from '@/components/pokemon-list-wrapper';
 import { getAllGenerations, getAllTypes, getFilteredPokemonList } from '@/lib/api/pokeapi';
 
 const ITEMS_PER_PAGE = 50;
@@ -21,6 +20,7 @@ export default async function Home({
   const currentPage = parseInt(params.page || '1', 10);
   const typeFilter = params.type;
   const generationFilter = params.generation;
+  const hasFilters = Boolean(typeFilter || generationFilter);
 
   // Obtener datos necesarios para los filtros
   const [generations, types, { pokemon, total, totalFiltered }] = await Promise.all([
@@ -35,8 +35,6 @@ export default async function Home({
       ITEMS_PER_PAGE
     ),
   ]);
-
-  const totalPages = Math.ceil(totalFiltered / ITEMS_PER_PAGE);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -56,7 +54,7 @@ export default async function Home({
           <Filters generations={generations} types={types} />
         </Suspense>
 
-        {/* Pokemon List */}
+        {/* Pokemon List with intelligent caching */}
         <Suspense
           fallback={
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -66,20 +64,13 @@ export default async function Home({
             </div>
           }
         >
-          <PokemonList pokemon={pokemon} />
+          <PokemonListWrapper
+            initialPokemon={pokemon}
+            total={total}
+            hasFilters={hasFilters}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </Suspense>
-
-        {/* Pagination */}
-        {totalFiltered > ITEMS_PER_PAGE && (
-          <Suspense fallback={<div className="h-16 mt-8" />}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalFiltered}
-              itemsPerPage={ITEMS_PER_PAGE}
-            />
-          </Suspense>
-        )}
       </div>
     </div>
   );

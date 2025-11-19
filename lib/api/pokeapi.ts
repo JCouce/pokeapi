@@ -246,7 +246,11 @@ export async function enrichPokemonWithGeneration(
 
 /**
  * Obtiene Pokémon enriquecidos con paginación y filtros
- * Optimizado para cargar solo lo necesario
+ * 
+ * Estrategia híbrida optimizada:
+ * - Sin filtros: Carga solo la página actual (50 Pokémon) - Server-side pagination
+ * - Con filtros: Carga un dataset más grande (500 Pokémon) para caché en cliente
+ *   Esto permite filtrado instantáneo en el cliente sin nuevas peticiones al servidor
  */
 export async function getFilteredPokemonList(
   filters: { type?: string; generation?: string; page?: number } = {},
@@ -263,8 +267,10 @@ export async function getFilteredPokemonList(
   const allPokemon = await getAllPokemonBasic();
   const total = allPokemon.length;
 
-  // Sin filtros, solo paginación eficiente
-  if (!filters.type && !filters.generation) {
+  const hasFilters = Boolean(filters.type || filters.generation);
+
+  // Sin filtros: paginación server-side eficiente (solo 50 Pokémon)
+  if (!hasFilters) {
     const paginatedList = allPokemon.slice(offset, offset + limit);
 
     const results = await Promise.all(
@@ -288,9 +294,9 @@ export async function getFilteredPokemonList(
     return { pokemon: enrichedPokemon, total, totalFiltered: total };
   }
 
-  // Con filtros: cargar solo un subconjunto razonable
-  // Para evitar sobrecargar la API, limitamos a los primeros 300 Pokémon
-  const MAX_FETCH = 300;
+  // Con filtros: cargar dataset más grande para caché en cliente (filtrado instantáneo)
+  // Aumentamos a 500 Pokémon para cubrir la mayoría de casos de filtrado
+  const MAX_FETCH = 500;
   const pokemonToFetch = allPokemon.slice(0, MAX_FETCH);
 
   // Obtener detalles en lotes para evitar rate limiting
@@ -315,13 +321,12 @@ export async function getFilteredPokemonList(
     );
   }
 
-  // Aplicar filtros
-  let filtered = applyFilters(enrichedPokemon, filters);
-
+  // Con filtros: Devolver TODO el dataset sin paginar
+  // El cliente lo cacheará y hará el filtrado/paginación instantáneamente
+  // Esto permite cambiar filtros sin recargar desde el servidor
+  const filtered = applyFilters(enrichedPokemon, filters);
   const totalFiltered = filtered.length;
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedPokemon = filtered.slice(startIndex, endIndex);
 
-  return { pokemon: paginatedPokemon, total, totalFiltered };
+  // Devolver dataset completo (no paginado) para caché en cliente
+  return { pokemon: enrichedPokemon, total, totalFiltered };
 }
