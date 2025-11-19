@@ -10,6 +10,7 @@ import {
   type Generation,
   type Type,
 } from "@/lib/types/pokemon";
+import { applyFilters } from "@/lib/utils/helpers";
 
 const BASE_URL = "https://pokeapi.co/api/v2";
 const POKEMON_LIMIT = 1025; // Total de Pokémon hasta Gen 9
@@ -315,18 +316,7 @@ export async function getFilteredPokemonList(
   }
 
   // Aplicar filtros
-  let filtered = enrichedPokemon;
-
-  if (filters.type) {
-    filtered = filtered.filter((p) =>
-      p.types.some((t) => t.name === filters.type)
-    );
-  }
-
-  if (filters.generation) {
-    const genId = parseInt(filters.generation, 10);
-    filtered = filtered.filter((p) => p.generationId === genId);
-  }
+  let filtered = applyFilters(enrichedPokemon, filters);
 
   const totalFiltered = filtered.length;
   const startIndex = (page - 1) * limit;
