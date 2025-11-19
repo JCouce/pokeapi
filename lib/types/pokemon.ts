@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Schema para recursos con nombre y URL de la API
 export const NamedAPIResourceSchema = z.object({
@@ -17,7 +17,7 @@ export const PokemonSpritesSchema = z.object({
   front_default: z.string().nullable(),
   other: z
     .object({
-      'official-artwork': z.object({
+      "official-artwork": z.object({
         front_default: z.string().nullable(),
       }),
     })

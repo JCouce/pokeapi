@@ -9,6 +9,7 @@
 ## 📋 Requisitos Implementados
 
 ### ✅ Fase 1: Listado de Pokémon
+
 - [x] Listado completo de todos los Pokémon (1025+)
 - [x] Ordenados por ID (por defecto)
 - [x] Mostrar: nombre, generación, tipos
@@ -16,6 +17,7 @@
 - [x] Tarjetas responsive con diseño moderno
 
 ### ✅ Fase 2: Filtros
+
 - [x] Selector de Tipo (18 tipos disponibles)
 - [x] Selector de Generación (I - IX)
 - [x] Filtros combinados (tipo AND generación)
@@ -23,6 +25,7 @@
 - [x] Estado de filtros en URL (compartible)
 
 ### ✅ Requisitos Técnicos
+
 - [x] Next.js 15 con App Router
 - [x] TypeScript con tipado estricto
 - [x] Server Components
@@ -109,6 +112,7 @@ pokeapi/
 ## 🎯 Características Implementadas
 
 ### 🖼️ Interfaz de Usuario
+
 - ✨ Diseño moderno con gradientes y sombras
 - 📱 Totalmente responsive (móvil → tablet → desktop)
 - 🎨 Colores distintivos para cada tipo de Pokémon
@@ -117,6 +121,7 @@ pokeapi/
 - ❌ Manejo elegante de errores
 
 ### 🚀 Rendimiento
+
 - 🌐 Server-Side Rendering (SSR)
 - 💾 Caché de 24 horas para datos estáticos
 - 🎯 Carga paralela de datos (Promise.all)
@@ -125,6 +130,7 @@ pokeapi/
 - ⚡ Paginación para evitar cargar 1025 Pokémon a la vez
 
 ### 🔒 Calidad de Código
+
 - ✅ TypeScript estricto (100% tipado)
 - ✅ Validación runtime con Zod
 - ✅ 33 tests unitarios pasando
@@ -176,12 +182,14 @@ f477a59 feat: implement Pokemon listing with filters and pagination
 ## 🚀 Próximos Pasos
 
 ### Fase 3: Búsqueda por Nombre (Siguiente)
+
 - [ ] Barra de búsqueda en tiempo real
 - [ ] Autocompletado
 - [ ] Búsqueda combinada con filtros
 - [ ] Historial de búsquedas
 
 ### Fase 4: Página de Detalle (Después de Fase 3)
+
 - [ ] Ruta dinámica `/pokemon/[id]`
 - [ ] Estadísticas detalladas
 - [ ] Cadena evolutiva
@@ -201,6 +209,7 @@ f477a59 feat: implement Pokemon listing with filters and pagination
 ## 🎓 Aprendizajes Aplicados
 
 ### Arquitectura
+
 - ✅ Server Components vs Client Components
 - ✅ Data fetching en servidor
 - ✅ URL como fuente de verdad (searchParams)
@@ -208,6 +217,7 @@ f477a59 feat: implement Pokemon listing with filters and pagination
 - ✅ Error boundaries
 
 ### Optimización
+
 - ✅ Caché strategies
 - ✅ Parallel data fetching
 - ✅ Code splitting
@@ -215,11 +225,13 @@ f477a59 feat: implement Pokemon listing with filters and pagination
 - ✅ Lazy loading
 
 ### Testing
+
 - ✅ Unit testing con Vitest
 - ✅ Testing utilities
 - ✅ Test behavior, not implementation
 
 ### DevOps
+
 - ✅ Git workflow
 - ✅ Conventional commits
 - ✅ pnpm workspaces ready
@@ -239,13 +251,16 @@ f477a59 feat: implement Pokemon listing with filters and pagination
 ## 🐛 Troubleshooting
 
 ### Error: "Failed to fetch pokemon"
+
 **Causa**: PokeAPI temporalmente inaccesible o rate limiting  
 **Solución**: Esperar unos segundos y recargar (error boundary tiene botón "Try Again")
 
 ### Puerto 3000 en uso
+
 **Solución**: Next.js automáticamente usará el siguiente puerto disponible (3001, 3002...)
 
 ### Tests fallan
+
 ```bash
 # Limpiar y reinstalar
 rm -rf node_modules .next
@@ -296,7 +311,7 @@ El proyecto está **100% funcional** y cumple todos los requisitos de las Fases 
 ✅ Server Components  
 ✅ Tests unitarios  
 ✅ Commits frecuentes  
-✅ Stack moderno  
+✅ Stack moderno
 
 **El código está listo para continuar con la Fase 3 (búsqueda por nombre).**
 

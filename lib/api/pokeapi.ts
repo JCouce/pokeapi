@@ -9,9 +9,9 @@ import {
   type PokemonSpecies,
   type Generation,
   type Type,
-} from '@/lib/types/pokemon';
+} from "@/lib/types/pokemon";
 
-const BASE_URL = 'https://pokeapi.co/api/v2';
+const BASE_URL = "https://pokeapi.co/api/v2";
 const POKEMON_LIMIT = 1025; // Total de Pokémon hasta Gen 9
 
 /**
@@ -23,7 +23,7 @@ export async function getAllPokemonBasic() {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch pokemon list');
+    throw new Error("Failed to fetch pokemon list");
   }
 
   const data = await response.json();
@@ -34,23 +34,33 @@ export async function getAllPokemonBasic() {
 /**
  * Obtiene detalles de un Pokémon por ID o nombre
  */
-export async function getPokemonDetails(idOrName: string | number): Promise<Pokemon> {
-  const response = await fetch(`${BASE_URL}/pokemon/${idOrName}`, {
-    next: { revalidate: 86400 },
-  });
+export async function getPokemonDetails(
+  idOrName: string | number
+): Promise<Pokemon> {
+  try {
+    const response = await fetch(`${BASE_URL}/pokemon/${idOrName}`, {
+      next: { revalidate: 86400 },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch pokemon: ${idOrName}`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch pokemon: ${idOrName} (Status: ${response.status})`
+      );
+    }
+
+    const data = await response.json();
+    return PokemonSchema.parse(data);
+  } catch (error) {
+    throw error;
   }
-
-  const data = await response.json();
-  return PokemonSchema.parse(data);
 }
 
 /**
  * Obtiene información de especie de Pokémon (incluye generación)
  */
-export async function getPokemonSpecies(idOrName: string | number): Promise<PokemonSpecies> {
+export async function getPokemonSpecies(
+  idOrName: string | number
+): Promise<PokemonSpecies> {
   const response = await fetch(`${BASE_URL}/pokemon-species/${idOrName}`, {
     next: { revalidate: 86400 },
   });
@@ -72,7 +82,7 @@ export async function getAllGenerations(): Promise<Generation[]> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch generations');
+    throw new Error("Failed to fetch generations");
   }
 
   const data = await response.json();
@@ -101,7 +111,7 @@ export async function getAllTypes(): Promise<Type[]> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch types');
+    throw new Error("Failed to fetch types");
   }
 
   const data = await response.json();
@@ -110,7 +120,7 @@ export async function getAllTypes(): Promise<Type[]> {
   // Obtener detalles de cada tipo
   const types = await Promise.all(
     validated.results
-      .filter((type) => !['unknown', 'shadow'].includes(type.name)) // Filtrar tipos especiales
+      .filter((type) => !["unknown", "shadow"].includes(type.name)) // Filtrar tipos especiales
       .map(async (type) => {
         const typeResponse = await fetch(type.url, {
           next: { revalidate: 86400 },
@@ -127,7 +137,7 @@ export async function getAllTypes(): Promise<Type[]> {
  * Extrae el ID de una URL de la API
  */
 export function extractIdFromUrl(url: string): number {
-  const parts = url.split('/').filter(Boolean);
+  const parts = url.split("/").filter(Boolean);
   return parseInt(parts[parts.length - 1], 10);
 }
 
@@ -140,21 +150,23 @@ export function getGenerationName(generationUrl: string): string {
 }
 
 const romanNumerals: Record<number, string> = {
-  1: 'I',
-  2: 'II',
-  3: 'III',
-  4: 'IV',
-  5: 'V',
-  6: 'VI',
-  7: 'VII',
-  8: 'VIII',
-  9: 'IX',
+  1: "I",
+  2: "II",
+  3: "III",
+  4: "IV",
+  5: "V",
+  6: "VI",
+  7: "VII",
+  8: "VIII",
+  9: "IX",
 };
 
 /**
  * Enriquece un Pokémon con información de especie/generación
  */
-export async function enrichPokemonWithGeneration(pokemon: Pokemon): Promise<EnrichedPokemon> {
+export async function enrichPokemonWithGeneration(
+  pokemon: Pokemon
+): Promise<EnrichedPokemon> {
   const speciesId = extractIdFromUrl(pokemon.species.url);
   const species = await getPokemonSpecies(speciesId);
 
@@ -169,7 +181,9 @@ export async function enrichPokemonWithGeneration(pokemon: Pokemon): Promise<Enr
       slot: t.slot,
       name: t.type.name,
     })),
-    sprite: pokemon.sprites.other?.['official-artwork']?.front_default || pokemon.sprites.front_default,
+    sprite:
+      pokemon.sprites.other?.["official-artwork"]?.front_default ||
+      pokemon.sprites.front_default,
     generationId,
     generationName: getGenerationName(species.generation.url),
   };
@@ -182,57 +196,78 @@ export async function enrichPokemonWithGeneration(pokemon: Pokemon): Promise<Enr
 export async function getFilteredPokemonList(
   filters: { type?: string; generation?: string; page?: number } = {},
   limit: number = 50
-): Promise<{ pokemon: EnrichedPokemon[]; total: number; totalFiltered: number }> {
+): Promise<{
+  pokemon: EnrichedPokemon[];
+  total: number;
+  totalFiltered: number;
+}> {
   const page = filters.page || 1;
-  
-  // Si hay filtros, necesitamos cargar todos para filtrar
-  // En producción, esto debería optimizarse con endpoints específicos de la API
-  if (filters.type || filters.generation) {
-    const allPokemon = await getAllPokemonBasic();
-    const total = allPokemon.length;
+  const offset = (page - 1) * limit;
 
-    // Obtener detalles de todos (se cachea)
+  // Obtener lista básica
+  const allPokemon = await getAllPokemonBasic();
+  const total = allPokemon.length;
+
+  // Sin filtros, solo paginación eficiente
+  if (!filters.type && !filters.generation) {
+    const paginatedList = allPokemon.slice(offset, offset + limit);
+
     const enrichedPokemon = await Promise.all(
-      allPokemon.map(async (p) => {
+      paginatedList.map(async (p) => {
         const id = extractIdFromUrl(p.url);
         const details = await getPokemonDetails(id);
         return enrichPokemonWithGeneration(details);
       })
     );
 
-    // Aplicar filtros
-    let filtered = enrichedPokemon;
-    
-    if (filters.type) {
-      filtered = filtered.filter((p) => p.types.some((t) => t.name === filters.type));
-    }
-    
-    if (filters.generation) {
-      const genId = parseInt(filters.generation, 10);
-      filtered = filtered.filter((p) => p.generationId === genId);
-    }
-
-    const totalFiltered = filtered.length;
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedPokemon = filtered.slice(startIndex, endIndex);
-
-    return { pokemon: paginatedPokemon, total, totalFiltered };
+    return { pokemon: enrichedPokemon, total, totalFiltered: total };
   }
 
-  // Sin filtros, solo paginación
-  const offset = (page - 1) * limit;
-  const allPokemon = await getAllPokemonBasic();
-  const total = allPokemon.length;
-  const paginatedList = allPokemon.slice(offset, offset + limit);
+  // Con filtros: cargar solo un subconjunto razonable
+  // Para evitar sobrecargar la API, limitamos a los primeros 300 Pokémon
+  const MAX_FETCH = 300;
+  const pokemonToFetch = allPokemon.slice(0, MAX_FETCH);
 
-  const enrichedPokemon = await Promise.all(
-    paginatedList.map(async (p) => {
-      const id = extractIdFromUrl(p.url);
-      const details = await getPokemonDetails(id);
-      return enrichPokemonWithGeneration(details);
-    })
-  );
+  // Obtener detalles en lotes para evitar rate limiting
+  const BATCH_SIZE = 20;
+  const enrichedPokemon: EnrichedPokemon[] = [];
 
-  return { pokemon: enrichedPokemon, total, totalFiltered: total };
+  for (let i = 0; i < pokemonToFetch.length; i += BATCH_SIZE) {
+    const batch = pokemonToFetch.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(async (p) => {
+        try {
+          const id = extractIdFromUrl(p.url);
+          const details = await getPokemonDetails(id);
+          return enrichPokemonWithGeneration(details);
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+    enrichedPokemon.push(
+      ...batchResults.filter((p): p is EnrichedPokemon => p !== null)
+    );
+  }
+
+  // Aplicar filtros
+  let filtered = enrichedPokemon;
+
+  if (filters.type) {
+    filtered = filtered.filter((p) =>
+      p.types.some((t) => t.name === filters.type)
+    );
+  }
+
+  if (filters.generation) {
+    const genId = parseInt(filters.generation, 10);
+    filtered = filtered.filter((p) => p.generationId === genId);
+  }
+
+  const totalFiltered = filtered.length;
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedPokemon = filtered.slice(startIndex, endIndex);
+
+  return { pokemon: paginatedPokemon, total, totalFiltered };
 }

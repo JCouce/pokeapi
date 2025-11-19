@@ -1,14 +1,8 @@
 # Pokédex - Next.js 15 & TypeScriptThis is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-
-
 A modern, fully-featured Pokédex application built with Next.js 15, TypeScript, and the PokéAPI. Features server-side rendering, advanced filtering, and pagination.## Getting Started
 
-
-
 ## 🚀 FeaturesFirst, run the development server:
-
-
 
 ### ✅ Implemented (Phase 1 & 2)```bash
 
@@ -62,11 +56,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 - **Phase 4**: Individual Pokémon detail pages## Deploy on Vercel
 
-
-
 ## 🛠️ Tech StackThe easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-
 
 - **Framework**: Next.js 15.0.3 (App Router)Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
@@ -154,14 +144,17 @@ pnpm test
 ## 🎨 Component Architecture
 
 ### Server Components
+
 - `pokemon-list.tsx`: Renders the grid of Pokémon cards
 - `pokemon-card.tsx`: Displays individual Pokémon information
 
 ### Client Components
+
 - `filters.tsx`: Interactive filters with URL state management
 - `pagination.tsx`: Page navigation with URL parameters
 
 ### Data Flow
+
 1. URL search parameters define filters and page
 2. Server fetches filtered data from PokeAPI
 3. Data is cached on the server
@@ -172,9 +165,11 @@ pnpm test
 ## 🔧 Configuration
 
 ### Environment Variables
+
 No environment variables required. The app uses the public PokéAPI.
 
 ### Caching Strategy
+
 - **Static Generation**: Filter dropdowns (generations, types)
 - **Server-side Caching**: Pokémon data (24-hour revalidation)
 - **Client-side Navigation**: URL-based state persistence
@@ -182,6 +177,7 @@ No environment variables required. The app uses the public PokéAPI.
 ## 📊 API Integration
 
 ### PokeAPI Endpoints Used
+
 - `/pokemon` - List all Pokémon
 - `/pokemon/{id}` - Individual Pokémon details
 - `/pokemon-species/{id}` - Species info (generation)
@@ -189,6 +185,7 @@ No environment variables required. The app uses the public PokéAPI.
 - `/type` - All Pokémon types
 
 ### Data Optimization
+
 - Parallel requests with `Promise.all()`
 - Efficient pagination (only fetch needed data when no filters)
 - Zod validation for type safety
@@ -197,24 +194,28 @@ No environment variables required. The app uses the public PokéAPI.
 ## 🎯 Development Decisions
 
 ### Why Next.js 15?
+
 - Latest features (Server Actions, improved caching)
 - App Router for better performance
 - Built-in optimization (images, fonts, scripts)
 - Server Components by default
 
 ### Why Server Components?
+
 - Faster initial page load
 - Reduced JavaScript bundle size
 - SEO-friendly
 - Better performance on low-end devices
 
 ### Why pnpm?
+
 - Faster than npm/yarn
 - Efficient disk space usage
 - Strict dependency resolution
 - Better monorepo support
 
 ### Why Zod?
+
 - Runtime type validation
 - Type inference for TypeScript
 - API data validation
