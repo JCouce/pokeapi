@@ -362,13 +362,13 @@ export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
  */
 export const getCachedAllPokemon = unstable_cache(
   async () => {
-    console.log('[Cache Miss] Cargando 500 Pokémon...');
+    console.log("[Cache Miss] Cargando 500 Pokémon...");
     return await getAllPokemon();
   },
-  ['all-pokemon-cached'], // Cache key
+  ["all-pokemon-cached"], // Cache key
   {
     revalidate: 86400, // 24 horas
-    tags: ['pokemon'], // Para invalidación manual si es necesario
+    tags: ["pokemon"], // Para invalidación manual si es necesario
   }
 );
 
