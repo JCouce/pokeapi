@@ -176,20 +176,56 @@ export async function enrichPokemonWithGeneration(pokemon: Pokemon): Promise<Enr
 }
 
 /**
- * Obtiene Pokémon enriquecidos con paginación
+ * Obtiene Pokémon enriquecidos con paginación y filtros
+ * Optimizado para cargar solo lo necesario
  */
-export async function getEnrichedPokemonList(
-  offset: number = 0,
+export async function getFilteredPokemonList(
+  filters: { type?: string; generation?: string; page?: number } = {},
   limit: number = 50
-): Promise<{ pokemon: EnrichedPokemon[]; total: number }> {
-  // Obtener lista básica
+): Promise<{ pokemon: EnrichedPokemon[]; total: number; totalFiltered: number }> {
+  const page = filters.page || 1;
+  
+  // Si hay filtros, necesitamos cargar todos para filtrar
+  // En producción, esto debería optimizarse con endpoints específicos de la API
+  if (filters.type || filters.generation) {
+    const allPokemon = await getAllPokemonBasic();
+    const total = allPokemon.length;
+
+    // Obtener detalles de todos (se cachea)
+    const enrichedPokemon = await Promise.all(
+      allPokemon.map(async (p) => {
+        const id = extractIdFromUrl(p.url);
+        const details = await getPokemonDetails(id);
+        return enrichPokemonWithGeneration(details);
+      })
+    );
+
+    // Aplicar filtros
+    let filtered = enrichedPokemon;
+    
+    if (filters.type) {
+      filtered = filtered.filter((p) => p.types.some((t) => t.name === filters.type));
+    }
+    
+    if (filters.generation) {
+      const genId = parseInt(filters.generation, 10);
+      filtered = filtered.filter((p) => p.generationId === genId);
+    }
+
+    const totalFiltered = filtered.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedPokemon = filtered.slice(startIndex, endIndex);
+
+    return { pokemon: paginatedPokemon, total, totalFiltered };
+  }
+
+  // Sin filtros, solo paginación
+  const offset = (page - 1) * limit;
   const allPokemon = await getAllPokemonBasic();
   const total = allPokemon.length;
-
-  // Paginar
   const paginatedList = allPokemon.slice(offset, offset + limit);
 
-  // Obtener detalles y enriquecer
   const enrichedPokemon = await Promise.all(
     paginatedList.map(async (p) => {
       const id = extractIdFromUrl(p.url);
@@ -198,5 +234,5 @@ export async function getEnrichedPokemonList(
     })
   );
 
-  return { pokemon: enrichedPokemon, total };
+  return { pokemon: enrichedPokemon, total, totalFiltered: total };
 }
