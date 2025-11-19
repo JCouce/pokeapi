@@ -50,7 +50,7 @@ export function Filters({ generations, types }: FiltersProps) {
             id="type-filter"
             value={currentType}
             onChange={(e) => handleFilterChange('type', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer"
           >
             <option value="">All Types</option>
             {types
@@ -72,7 +72,7 @@ export function Filters({ generations, types }: FiltersProps) {
             id="generation-filter"
             value={currentGeneration}
             onChange={(e) => handleFilterChange('generation', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all duration-200 cursor-pointer"
           >
             <option value="">All Generations</option>
             {generations.map((gen) => (
@@ -87,7 +87,7 @@ export function Filters({ generations, types }: FiltersProps) {
         {hasActiveFilters && (
           <button
             onClick={handleClearFilters}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors whitespace-nowrap"
+            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 hover:shadow-md transition-all duration-200 whitespace-nowrap cursor-pointer font-medium"
           >
             Clear Filters
           </button>
@@ -103,7 +103,7 @@ export function Filters({ generations, types }: FiltersProps) {
               Type: {capitalize(currentType)}
               <button
                 onClick={() => handleFilterChange('type', '')}
-                className="ml-1 hover:text-blue-900"
+                className="ml-1 hover:text-blue-900 hover:scale-110 transition-all duration-200 cursor-pointer font-bold"
                 aria-label="Remove type filter"
               >
                 ×
@@ -115,7 +115,7 @@ export function Filters({ generations, types }: FiltersProps) {
               Gen {getRomanNumeral(parseInt(currentGeneration))}
               <button
                 onClick={() => handleFilterChange('generation', '')}
-                className="ml-1 hover:text-purple-900"
+                className="ml-1 hover:text-purple-900 hover:scale-110 transition-all duration-200 cursor-pointer font-bold"
                 aria-label="Remove generation filter"
               >
                 ×

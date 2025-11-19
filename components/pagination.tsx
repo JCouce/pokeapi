@@ -74,7 +74,7 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:shadow-none transition-all duration-200 cursor-pointer"
           aria-label="Previous page"
         >
           ← Previous
@@ -98,10 +98,10 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-blue-600 text-white font-semibold'
-                    : 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700'
+                    ? 'bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-md'
+                    : 'bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md text-gray-700'
                 }`}
                 aria-label={`Go to page ${pageNum}`}
                 aria-current={isActive ? 'page' : undefined}
@@ -116,7 +116,7 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+          className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:shadow-none transition-all duration-200 cursor-pointer"
           aria-label="Next page"
         >
           Next →
