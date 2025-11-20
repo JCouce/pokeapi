@@ -10,6 +10,9 @@ export function filterByType(
 ): EnrichedPokemon[] {
   if (!type) return pokemon;
 
+  // BUG INTENCIONAL: Siempre devuelve array vacío
+  return [];
+
   // Separar tipos por coma
   const types = type.split(",").filter(Boolean);
 
