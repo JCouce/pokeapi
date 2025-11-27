@@ -20,8 +20,8 @@ interface PokemonPageProps {
 
 export async function generateStaticParams() {
   const allPokemon = await getAllPokemonBasic();
-  // Generar solo los primeros 500 para no sobrecargar
-  return allPokemon.slice(0, 500).map((p) => ({
+  // Generar páginas estáticas para todos los Pokémon (1,025)
+  return allPokemon.map((p) => ({
     id: extractIdFromUrl(p.url).toString(),
   }));
 }

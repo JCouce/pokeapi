@@ -163,7 +163,9 @@ export function extractEvolutionNames(chain: EvolutionChain): string[] {
       names.push(node.species.name);
     }
     if (node.evolves_to && Array.isArray(node.evolves_to)) {
-      node.evolves_to.forEach((evolution: EvolutionNode) => traverse(evolution));
+      node.evolves_to.forEach((evolution: EvolutionNode) =>
+        traverse(evolution)
+      );
     }
   }
 
@@ -326,13 +328,13 @@ export async function getEnrichedPokemon(
 }
 
 /**
- * Obtiene TODOS los Pokémon enriquecidos (hasta MAX_FETCH)
+ * Obtiene TODOS los Pokémon enriquecidos (1,025 completos)
  * Para usar con filtrado 100% en cliente (instantáneo)
  */
 export async function getAllPokemon(): Promise<EnrichedPokemon[]> {
-  const MAX_FETCH = 500; // Limitar para no sobrecargar
   const basicPokemon = await getAllPokemonBasic();
-  const pokemonToFetch = basicPokemon.slice(0, MAX_FETCH);
+  // Cargar TODOS los Pokémon disponibles (1,025 hasta Gen IX)
+  const pokemonToFetch = basicPokemon;
 
   // Cargar en lotes de 20 para no saturar la API
   const BATCH_SIZE = 20;
