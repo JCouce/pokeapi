@@ -5,7 +5,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![Tests](https://img.shields.io/badge/tests-48%20passing-green)
 
-A modern, fully-featured Pokédex application built with Next.js 15, TypeScript, and the PokéAPI. Features server-side rendering, advanced filtering, and pagination.## Getting Started
+A modern, fully-featured Pokédex application built with Next.js 16, TypeScript, and the PokéAPI. Features server-side rendering, advanced filtering, and pagination.
+
+## Getting Started
 
 ## 🚀 FeaturesFirst, run the development server:
 
@@ -37,7 +39,7 @@ npm run dev
 
   - Generation
 
-  - Height and weightThis project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+  - Height and weight
 
 - **Optimized Performance**:
 
@@ -49,7 +51,7 @@ npm run dev
 
 - **Responsive Design**: Mobile-first, adapts from 1 to 4 columns
 
-- **Loading & Error States**: Skeleton loaders and error boundaries- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- **Loading & Error States**: Skeleton loaders and error boundaries
 
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
@@ -61,9 +63,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 - **Phase 4**: Individual Pokémon detail pages## Deploy on Vercel
 
-## 🛠️ Tech StackThe easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15.0.3 (App Router)Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js 16.0.3 (App Router)
 
 - **Language**: TypeScript 5.9.3
 - **Styling**: TailwindCSS 4.1.17
@@ -231,7 +233,7 @@ No environment variables required. The app uses the public PokéAPI.
 
 ## 🎯 Development Decisions
 
-### Why Next.js 15?
+### Why Next.js 16?
 
 - Latest features (Server Actions, improved caching)
 - App Router for better performance
@@ -291,4 +293,4 @@ MIT
 
 ---
 
-**Built with ❤️ using Next.js 15 and TypeScript**
+**Built with ❤️ using Next.js 16 and TypeScript**
