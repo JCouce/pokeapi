@@ -1,4 +1,4 @@
-# Pokédex - Next.js 15 & TypeScript
+# Pokédex - Next.js 16 & TypeScript
 
 [![CI](https://github.com/JCouce/pokeapi/actions/workflows/ci.yml/badge.svg)](https://github.com/JCouce/pokeapi/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
