@@ -1,6 +1,6 @@
 # Pokédex - Next.js 15 & TypeScript
 
-![CI Status](https://github.com/YOUR_USERNAME/pokeapi/workflows/CI%20-%20Run%20Tests/badge.svg)
+[![CI](https://github.com/JCouce/pokeapi/actions/workflows/ci.yml/badge.svg)](https://github.com/JCouce/pokeapi/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![Tests](https://img.shields.io/badge/tests-48%20passing-green)
